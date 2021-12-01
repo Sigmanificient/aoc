@@ -1,0 +1,10 @@
+# IDE configuration folder
+.idea
+
+# AoC data
+input.data
+
+# Python env & bytecode
+__pycache__
+*.py[cod]
+venv
