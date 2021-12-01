@@ -1,20 +1,62 @@
+from typing import List
+
 from wrapper import provide
 
 
-def _count_larger_sum(first_seq, offset):
+def _count_larger_sum(
+    first_seq: List[int], offset: int
+) -> int:
+    """
+    Parameters
+    ----------
+    first_seq : List[int]
+        The first sequence of numbers.
+    offset : int
+        The offset to apply to the first sequence.
+
+    Returns
+    -------
+    int
+        The number of elements in the first sequence that are larger than their
+        offset-th element.
+    """
     return sum(
         x < y
-        for x, y in zip(first_seq, offset)
+        for x, y in zip(
+            first_seq, first_seq[offset:]
+        )
     )
 
 
 @provide
-def day_1_part_1(data):
+def day_1_part_1(data: List[int]) -> int:
+    """
+    Parameters
+    ----------
+    data : List[int]
+        The input data provided by Aoc.
+
+    Returns
+    -------
+    int
+        The solution to part 1.
+    """
     return _count_larger_sum(data, 1)
 
 
 @provide
-def day_1_part_2(data):
+def day_1_part_2(data: List[int]) -> int:
+    """
+    Parameters
+    ----------
+    data : List[int]
+        The input data provided by Aoc.
+
+    Returns
+    -------
+    int
+        The solution to part 2.
+    """
     return _count_larger_sum(data, 3)
 
 
