@@ -57,6 +57,9 @@ def day_1_part_2(data: List[int]) -> int:
     int
         The solution to part 2.
     """
+    # Since we are comparing 2 sliding windows, a + b + c > b + c + d
+    # is the equivalent of doing a > c, so we can just just adjust the
+    # offset to be the length of the sequence.
     return _count_larger_sum(data, 3)
 
 
