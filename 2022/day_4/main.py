@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import pathlib
 from typing import List, Tuple, cast
 
@@ -11,6 +12,13 @@ class LinearRange:
 
     def is_subset_of(self, other: LinearRange) -> bool:
         return self.start <= other.start and self.stop >= other.stop
+
+    def is_overlapping(self, other: LinearRange) -> bool:
+        return (
+            self.start <= other.start <= self.stop
+            or self.start <= other.stop <= self.stop
+            or other.start <= self.start <= other.stop
+        )
 
     @classmethod
     def from_string(cls, string: str) -> LinearRange:
@@ -31,16 +39,16 @@ def retrieve_groups(lines: List[str]) -> List[Tuple[LinearRange, LinearRange]]:
     )
 
 
+def count_checked_group(group, func):
+    return sum(func(left, right) or func(right, left) for left, right in group)
+
+
 def main():
     content = pathlib.Path('./input.txt').read_text()
     groups = retrieve_groups(content.splitlines())
 
-    total = sum(
-        left.is_subset_of(right) or right.is_subset_of(left)
-        for left, right in groups
-    )
-
-    print("Part 1:", total)
+    print("Part 1:", count_checked_group(groups, LinearRange.is_subset_of))
+    print("Part 2:", count_checked_group(groups, LinearRange.is_overlapping))
 
 
 if __name__ == '__main__':
