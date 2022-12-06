@@ -39,10 +39,15 @@ def parse(lines):
     )
 
 
-def solve(state, moves):
+def solve(init_state, moves, pick_group):
+    state = {k: v[:] for k, v in init_state.items()}
+
     for n, from_, to in moves:
-        for i in range(n):
-            state[to].append(state[from_].pop())
+        pick = [state[from_].pop() for _ in range(n)]
+        if pick_group:
+            pick.reverse()
+
+        state[to].extend(pick)
     return state
 
 
@@ -54,7 +59,8 @@ def main():
     content = pathlib.Path('./input.txt').read_text()
     initial_state, moves = parse(content.splitlines())
 
-    print("Part 1:", collect_output(solve(initial_state, moves)))
+    print("Part 1:", collect_output(solve(initial_state, moves, False)))
+    print("Part 2:", collect_output(solve(initial_state, moves, True)))
 
 
 if __name__ == '__main__':
