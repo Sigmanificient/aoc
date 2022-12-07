@@ -1,62 +1,66 @@
+from __future__ import annotations
+
 import pathlib
-from typing import List, Tuple, Optional
+from typing import List, Callable, Optional, Dict
 
 DISK_SIZE = 70_000_000
 REQUIRED_SPACE = 30_000_000
 
 
-class Directory:
+class FileTree:
 
-    def __init__(self, parent):
+    def __init__(self, parent: Optional[FileTree] = None):
         self.parent = parent
-
-        self.sub_dirs = {}
-        self.files = {}
-
-    @property
-    def root(self):
-        if self.parent is None:
-            return self
-        return self.parent.root
+        self.sub_dirs: Dict[str, FileTree] = {}
+        self.files: Dict[str, int] = {}
 
     @property
-    def size(self):
+    def root(self) -> FileTree:
+        return self if self.parent is None else self.parent.root
+
+    @property
+    def size(self) -> int:
         return sum(self.files.values()) + sum(sub.size for sub in self.sub_dirs.values())
 
-    def __repr__(self):
-        return f'<[{self.size}]>'
+    def move_to(self, target: str) -> FileTree:
+        if target == '..':
+            return self.parent or self
 
+        if target not in self.sub_dirs:
+            raise ValueError(f'No such directory: {target}')
 
-def change_directory(tree: Directory, new_dir: str) -> Directory:
-    if new_dir == '..':
-        return tree.parent
+        return self.sub_dirs[target]
 
-    if new_dir not in tree.sub_dirs:
-        raise ValueError(f'No such directory {new_dir}')
+    def from_lines(self, lines: List[str], index: int, total: int) -> int:
+        while index < total and not (line := lines[index]).startswith('$'):
+            index += 1
 
-    tree = tree.sub_dirs[new_dir]
-    return tree
+            if line.startswith('dir'):
+                self.sub_dirs[line[4:]] = FileTree(parent=self)
+                continue
 
+            size, name = line.split(' ')
+            self.files[name] = int(size)
+        return index - 1
 
-def list_directory(tree: Directory, lines: List[str], index: int, total: int) -> Tuple[Directory, int]:
-    while index < total and not (line := lines[index]).startswith('$'):
-        index += 1
+    def filter_children(self, func: Callable[[FileTree], bool]) -> List[FileTree]:
+        collected = []
 
-        if line.startswith('dir'):
-            tree.sub_dirs[line[4:]] = Directory(parent=tree)
-            continue
+        if func(self):
+            collected.append(self)
 
-        size, name = line.split(' ')
-        tree.files[name] = int(size)
-    return tree, index - 1
+        for sub in self.sub_dirs.values():
+            collected.extend(sub.filter_children(func))
+
+        return collected
 
 
 def parse_file(lines):
-    tree = Directory(parent=None)
-    tree.sub_dirs["/"] = Directory(parent=tree)
+    tree = FileTree()
+    tree.sub_dirs["/"] = FileTree(parent=tree)
 
-    i = 0
     total = len(lines)
+    i = 0
 
     while i < total:
         if not (line := lines[i]).startswith('$'):
@@ -64,9 +68,9 @@ def parse_file(lines):
 
         _, command, *args = line.split(' ')
         if command == 'cd':
-            tree = change_directory(tree, args[0])
+            tree = tree.move_to(args[0])
         elif command == 'ls':
-            tree, i = list_directory(tree, lines, i + 1, total)
+            i = tree.from_lines(lines, i + 1, total)
         else:
             raise ValueError(f'Unknown command {command}')
 
@@ -74,50 +78,24 @@ def parse_file(lines):
     return tree.root
 
 
-def get_all_directories_with_size_below(tree: Directory, size: int, collected: List[str] = None) -> List[Directory]:
-    if not collected:
-        collected = []
-
-    if tree.size <= size:
-        collected.append(tree)
-
-    for sub in tree.sub_dirs.values():
-        collected.extend(get_all_directories_with_size_below(sub, size))
-
-    return collected
+def get_sum_of_sizes_below(tree: FileTree, size) -> int:
+    dirs = tree.filter_children(func=lambda f: f.size <= size)
+    return sum(d.size for d in dirs)
 
 
-def get_all_directories_with_size_above(
-    tree: Directory,
-    size: int,
-    collected: Optional[List[Directory]] = None
-) -> List[Directory]:
-    if not collected:
-        collected = []
-
-    if tree.size >= size:
-        collected.append(tree)
-
-    for sub in tree.sub_dirs.values():
-        collected.extend(get_all_directories_with_size_above(sub, size))
-
-    return collected
+def get_min_size_above(tree: FileTree, needed) -> int:
+    dirs = tree.filter_children(func=lambda f: f.size > needed)
+    return min(dirs, key=lambda d: d.size).size
 
 
 def main():
     content = pathlib.Path('./input.txt').read_text()
 
     tree = parse_file(content.splitlines())
+    print("Part 1:", get_sum_of_sizes_below(tree, 100_000))
 
-    dirs = get_all_directories_with_size_below(tree, 100_000)
-
-    print('Part 1:', sum(d.size for d in dirs))
-
-    available = DISK_SIZE - tree.root.size
-    required = REQUIRED_SPACE - available
-
-    dirs = get_all_directories_with_size_above(tree, required)
-    print(min(dirs, key=lambda d: d.size))
+    needed = REQUIRED_SPACE - (DISK_SIZE - tree.root.size)
+    print("Part 2:", get_min_size_above(tree, needed))
 
 
 if __name__ == '__main__':
