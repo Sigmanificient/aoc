@@ -1,6 +1,9 @@
 import pathlib
 from typing import List, Tuple, Optional
 
+DISK_SIZE = 70_000_000
+REQUIRED_SPACE = 30_000_000
+
 
 class Directory:
 
@@ -84,8 +87,21 @@ def get_all_directories_with_size_below(tree: Directory, size: int, collected: L
     return collected
 
 
-def get_sum_of_all_directories_with_size_below(tree: Directory, size: int) -> int:
-    return sum(d.size for d in get_all_directories_with_size_below(tree, size))
+def get_all_directories_with_size_above(
+    tree: Directory,
+    size: int,
+    collected: Optional[List[Directory]] = None
+) -> List[Directory]:
+    if not collected:
+        collected = []
+
+    if tree.size >= size:
+        collected.append(tree)
+
+    for sub in tree.sub_dirs.values():
+        collected.extend(get_all_directories_with_size_above(sub, size))
+
+    return collected
 
 
 def main():
@@ -93,7 +109,15 @@ def main():
 
     tree = parse_file(content.splitlines())
 
-    print('Part 1:', get_sum_of_all_directories_with_size_below(tree, 100_000))
+    dirs = get_all_directories_with_size_below(tree, 100_000)
+
+    print('Part 1:', sum(d.size for d in dirs))
+
+    available = DISK_SIZE - tree.root.size
+    required = REQUIRED_SPACE - available
+
+    dirs = get_all_directories_with_size_above(tree, required)
+    print(min(dirs, key=lambda d: d.size))
 
 
 if __name__ == '__main__':
