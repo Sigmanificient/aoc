@@ -1,54 +1,52 @@
 import functools
 import operator
 import pathlib
+from typing import Final, List, Tuple
 
-BOARD_SIZE = 99
+BOARD_SIZE: Final[int] = 99
 
 
-def is_visible(board, x, y):
-    return any(
-        board[y][x] > max(trees)
-        for trees in get_neighbours_tree(board, x, y)
+def get_neighbours_tree(board: List[str], x: int, y: int) -> Tuple[str, str, str, str]:
+    return (
+        board[y][:x][::-1],
+        board[y][x + 1:],
+        ''.join(line[x] for line in board[:y])[::-1],
+        ''.join(line[x] for line in board[y + 1:])
     )
 
 
-def count_visible(board):
+def count_visible(board: List[str]) -> int:
+    def is_visible(x, y) -> bool:
+        return any(
+            board[y][x] > max(trees)
+            for trees in get_neighbours_tree(board, x, y)
+        )
+
     return sum(
-        is_visible(board, x, y)
+        is_visible(x, y)
         for x in range(1, BOARD_SIZE - 1)
         for y in range(1, BOARD_SIZE - 1)
     ) + (BOARD_SIZE - 1) * 4
 
 
-def get_neighbours_tree(board, x, y):
-    return (
-        board[y][:x][::-1],
-        board[y][x + 1:],
-        tuple(line[x] for line in board[:y])[::-1],
-        tuple(line[x] for line in board[y + 1:])
-    )
-
-
-def get_first_non_visible_from(h, trees):
-    for idx, tree in enumerate(trees, start=1):
-        if tree >= h:
-            return idx
-    return len(trees)
-
-
-def scenic_core(board, x, y):
-    return functools.reduce(
-        operator.mul,
-        (
-            get_first_non_visible_from(board[y][x], trees)
-            for trees in get_neighbours_tree(board, x, y)
+def get_highest_scenic_score(board: List[str]) -> int:
+    def scenic_core(x: int, y: int) -> int:
+        return functools.reduce(
+            operator.mul,
+            (
+                get_first_non_visible_from(board[y][x], trees)
+                for trees in get_neighbours_tree(board, x, y)
+            )
         )
-    )
 
+    def get_first_non_visible_from(h: str, trees: str) -> int:
+        for idx, tree in enumerate(trees, start=1):
+            if tree >= h:
+                return idx
+        return len(trees)
 
-def get_highest_scenic_score(board):
     return max(
-        scenic_core(board, x, y)
+        scenic_core(x, y)
         for x in range(BOARD_SIZE)
         for y in range(BOARD_SIZE)
     )
