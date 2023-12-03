@@ -4,7 +4,8 @@
 #include "aoc.h"
 
 const solver_fnc_t SOLVERS[] = {
-    &day1_solver
+    &day1_solver,
+    &day2_solver,
 };
 
 const int SOLVER_COUNT = sizeof(SOLVERS) / sizeof(*SOLVERS);
@@ -18,6 +19,9 @@ int main(int argc, char **argv)
     if (argc != 3)
         return EXIT_FAILURE;
     i = atoi(argv[1]);
+    if (!i)
+        return EXIT_FAILURE;
+    i -= 1;
     if (i > SOLVER_COUNT)
         return EXIT_FAILURE;
     buffsize = read_input_file(argv[2], &buff);

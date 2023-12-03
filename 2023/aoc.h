@@ -5,6 +5,7 @@
     #include <unistd.h>
 
 void day1_solver(size_t size, char buff[size]);
+void day2_solver(size_t size, char buff[size]);
 
 typedef void (*solver_fnc_t)(size_t size, char buff[size]);
 
