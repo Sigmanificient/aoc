@@ -73,7 +73,8 @@ void day2_solver(size_t size, char buff[size])
     char *line = strtok_r(buff, "\n", &rest);
     cubes_t cubes;
     int game_id;
-    int total = 0;
+    int total_count = 0;
+    int total_score = 0;
 
     for (; line != NULL; line = strtok_r(NULL, "\n", &rest)) {
         line = strchr(line, ' ') + 1;
@@ -84,9 +85,9 @@ void day2_solver(size_t size, char buff[size])
             && ALLOWED.blue >= cubes.blue
             && ALLOWED.green >= cubes.green
         )
-            total += game_id;
-        else
-            printf("Invalidate game %d\n", game_id);
+            total_count += game_id;
+        total_score += cubes.red * cubes.blue * cubes.green;
     }
-    printf("%d\n", total);
+    printf("Part 1: %d\n", total_count);
+    printf("Part 2: %d\n", total_score);
 }
