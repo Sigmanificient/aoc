@@ -1,32 +1,19 @@
+#include <stddef.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 
 #include "aoc.h"
 
-ssize_t read_input_file(char *filepath, char **buffp)
-{
-    struct stat st;
-    char *buff;
+const solver_fnc_t SOLVERS[] = {
+    &day1_solver
+};
 
-    if (stat(filepath, &st) < 0)
-        return -1;
-    buff = malloc((st.st_size + 1) * sizeof(char));
-    if (buff == NULL)
-        return -1;
-    if (read_from_file(filepath, buff, st.st_size) < 0) {
-        free(buff);
-        return -1;
-    }
-    buff[st.st_size] = '\0';
-    *buffp = buff;
-    return 0;
-}
+const int SOLVER_COUNT = sizeof(SOLVERS) / sizeof(*SOLVERS);
 
 int main(int argc, char **argv)
 {
     int i;
     char *buff;
-    size_t buffsize;
+    ssize_t buffsize;
 
     if (argc != 3)
         return EXIT_FAILURE;
@@ -36,6 +23,7 @@ int main(int argc, char **argv)
     buffsize = read_input_file(argv[2], &buff);
     if (buffsize < 0)
         return EXIT_FAILURE;
-    SOLVERS[i](buffsize, buff);
+    SOLVERS[i]((size_t)buffsize, buff);
+    free(buff);
     return EXIT_SUCCESS;
 }

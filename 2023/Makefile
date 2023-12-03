@@ -16,8 +16,7 @@ CFLAGS += -U_FORTIFY_SOURCE
 CFLAGS += -Wformat=2
 
 CFLAGS += -MMD -MP
-CFLAGS += -fno-builtin
-CFLAGS += -fno-tree-loop-distribute-patterns
+CFLAGS += -fanalyzer
 CFLAGS += -pipe
 
 CFLAGS += -O2 -march=native -mtune=native
@@ -45,6 +44,7 @@ CFLAGS += -Wwrite-strings
 CFLAGS += -iquote .
 
 LDFLAGS += -fwhole-program -flto
+LDFLAGS += -fsanitize=address,leak,undefined -g
 
 VPATH += .
 SRC += main.c
