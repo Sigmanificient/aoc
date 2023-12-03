@@ -51,6 +51,7 @@ SRC += main.c
 SRC += file_reader.c
 SRC += day1.c
 SRC += day2.c
+SRC += day3.c
 
 vpath %.c $(VPATH)
 
