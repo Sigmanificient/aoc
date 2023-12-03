@@ -12,7 +12,7 @@ typedef struct {
 } dim_t;
 
 
-const struct { int dx, dy; } POINT_NEIGHBORS[8] = {
+const struct { int dx, dy; } POINT_NGBS[8] = {
     { -1, -1 }, { -1, 0 },
     { -1, 1 }, { 0, -1 },
     { 0, 1 }, { 1, -1 },
@@ -59,23 +59,32 @@ int find_digits(
 }
 
 static
-int count_symbol_in_map(dim_t *dim, char map[dim->height][dim->width + 1])
+void count_symbol_in_map(dim_t *dim, char map[dim->height][dim->width + 1])
 {
     int total = 0;
+    int tmp[8];
+    int found;
+    int total2 = 0;
 
     for (int y = 0; y < dim->height; y++) {
         for (int x = 0; x < dim->width; x++) {
             if (isdigit(map[y][x]) || map[y][x] == '.')
                 continue;
-            for (int d = 0; d < 8; d++)
-                total += find_digits(
-                    dim, map,
-                    y + POINT_NEIGHBORS[d].dy,
-                    x + POINT_NEIGHBORS[d].dx
-                );
+            memset(tmp, 0, sizeof(tmp));
+            found = 0;
+            for (int d = 0; d < 8; d++) {
+                tmp[found] = find_digits(
+                    dim, map, y + POINT_NGBS[d].dy, x + POINT_NGBS[d].dx);
+                found += tmp[found] != 0;
+            }
+            for (int i = 0; i < found; i++)
+                total += tmp[i];
+            if (found == 2 && map[y][x] == '*')
+                total2 += tmp[0] * tmp[1];
         }
     }
-    return total;
+    printf("Part 1: %d\n", total);
+    printf("Part 2: %d\n", total2);
 }
 
 void day3_solver(size_t size, char buff[size])
@@ -88,9 +97,5 @@ void day3_solver(size_t size, char buff[size])
     for (size_t i = 0; i < size; i++)
         if (buff[i] == '\n')
             dim.height++;
-    printf("map size: (%d, %d)\n", dim.width, dim.height);
-    printf(
-        "%d\n",
-        count_symbol_in_map(&dim, *(char (*)[dim.height][dim.width + 1])buff)
-    );
+    count_symbol_in_map(&dim, *(char (*)[dim.height][dim.width + 1])buff);
 }
