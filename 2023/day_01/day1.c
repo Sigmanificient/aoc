@@ -29,18 +29,6 @@ const cmps DIGITS_NAMES[] = {
 
 const size_t DIGITS_COUNT = sizeof(DIGITS_NAMES) / sizeof DIGITS_NAMES[0];
 
-int read_from_file(char const *filepath, char *buff, size_t size)
-{
-    int fd = open(filepath, O_RDONLY);
-    int rd;
-
-    if (fd < 0)
-        return fd;
-    rd = read(fd, buff, size);
-    for (; close(fd) < 0;);
-    return rd;
-}
-
 size_t get_last_digit(char *s)
 {
     size_t len = strlen(s);
@@ -61,7 +49,6 @@ void part_1(size_t size, char buff[size])
         res.r = TO_DIGIT(line[get_last_digit(line)]);
         res.curr = res.l * 10 + res.r;
         res.acc += res.curr;
-        printf("%d : %d -> %d\n", res.l, res.r, res.curr);
     }
     printf("=> %d\n", res.acc);
 }
@@ -78,22 +65,8 @@ void part_2(size_t size, char buff[size])
     part_1(size, buff);
 }
 
-int main(int argc, char **argv)
+void day_1(size_t size, char buff[size])
 {
-    struct stat st;
-    char *buff;
-
-    if (argc != 2)
-        return EXIT_FAILURE;
-    if (stat(argv[1], &st) < 0)
-        return EXIT_FAILURE;
-    buff = malloc((st.st_size + 1) * sizeof(char));
-    if (buff == NULL)
-        return EXIT_FAILURE;
-    if (read_from_file(argv[1], buff, st.st_size) < 0)
-        return EXIT_FAILURE;
-    buff[st.st_size] = '\0';
-    part_1(st.st_size, buff);
-    part_2(st.st_size, buff);
-    return EXIT_SUCCESS;
+    part_1(size, buff);
+    part_2(size, buff);
 }
