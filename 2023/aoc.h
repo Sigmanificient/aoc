@@ -7,6 +7,7 @@
 void day1_solver(size_t size, char buff[size]);
 void day2_solver(size_t size, char buff[size]);
 void day3_solver(size_t size, char buff[size]);
+void day4_solver(size_t size, char buff[size]);
 
 int strpnum(char **strp);
 

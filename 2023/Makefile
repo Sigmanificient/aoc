@@ -49,9 +49,11 @@ LDFLAGS += -fsanitize=address,leak,undefined -g
 VPATH += .
 SRC += main.c
 SRC += file_reader.c
+SRC += strpnum.c
 SRC += day1.c
 SRC += day2.c
 SRC += day3.c
+SRC += day4.c
 
 vpath %.c $(VPATH)
 
