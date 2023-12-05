@@ -40,11 +40,12 @@ static
 void parse_seeds_values(long seeds[8][255], int scount, int dim, const long range[3])
 {
     for (int j = 0; j < scount; j++) {
-        for (int i = 0; i < range[2]; i++) {
-            if (seeds[dim - 1][j] == (range[1] + i)) {
-                seeds[dim][j] = range[0] + i;
-            }
-        }
+        if (
+            seeds[dim - 1][j] < range[1]
+            || seeds[dim - 1][j] > (range[1] + range[2])
+        )
+            continue;
+        seeds[dim][j] = range[0] + (seeds[dim - 1][j] - range[1]);
     }
 }
 
@@ -68,9 +69,6 @@ void day5_solver(size_t size, char buff[size])
     int dim = 0;
 
     ssv_parse(scount, seeds[0], strchr(line, ':') + 1);
-    printf("[%s]\n", strchr(line, ':') + 1);
-    for (int i = 0; i < scount; i++)
-        printf("-> %ld\n", seeds[0][i]);
     line = strtok(NULL, "\n");
     for (; line != NULL; line = strtok(NULL, "\n")) {
         printf("[%s]\n", line);
