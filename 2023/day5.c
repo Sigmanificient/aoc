@@ -5,6 +5,12 @@
 
 #include "aoc.h"
 
+typedef struct {
+    int count;
+    long vals[8][255];
+    int dim;
+} seeder_t;
+
 static
 int ssv_parse(int size, long array[size], char *line)
 {
@@ -29,66 +35,66 @@ int count_seeds(char *seeds)
 }
 
 static
-void fill_missing_values(long seeds[8][255], int scount, int dim)
+void fill_missing_values(seeder_t *s)
 {
-    for (int i = 0; i < scount; i++)
-        if (seeds[dim][i] == 0)
-            seeds[dim][i] = seeds[dim - 1][i];
+    for (int i = 0; i < s->count; i++)
+        if (s->vals[s->dim][i] == 0)
+            s->vals[s->dim][i] = s->vals[s->dim - 1][i];
 }
 
 static
-void parse_seeds_values(long seeds[8][255], int scount, int dim, const long range[3])
+void parse_seeds_values(seeder_t *s, const long range[3])
 {
-    for (int j = 0; j < scount; j++) {
+    for (int j = 0; j < s->count; j++) {
         if (
-            seeds[dim - 1][j] < range[1]
-            || seeds[dim - 1][j] > (range[1] + range[2])
+            s->vals[s->dim - 1][j] < range[1]
+            || s->vals[s->dim - 1][j] > (range[1] + range[2])
         )
             continue;
-        seeds[dim][j] = range[0] + (seeds[dim - 1][j] - range[1]);
+        s->vals[s->dim][j] = range[0] + (s->vals[s->dim - 1][j] - range[1]);
     }
 }
 
 static
-long get_min_value(long seeds[8][255], int scount, int dim)
+long get_min_value(seeder_t *s)
 {
-    long min = seeds[dim][0];
+    long min = s->vals[s->dim][0];
 
-    for (int i = 1; i < scount; i++)
-        if (seeds[dim][i] < min)
-            min = seeds[dim][i];
+    for (int i = 1; i < s->count; i++)
+        if (s->vals[s->dim][i] < min)
+            min = s->vals[s->dim][i];
     return min;
+}
+
+static
+void populate_seeeder(seeder_t *s, char *buff)
+{
+    char *line = strtok(buff, "\n");
+    long range[3];
+
+    ssv_parse(s->count, s->vals[0], strchr(line, ':') + 1);
+    line = strtok(NULL, "\n");
+    for (; line != NULL; line = strtok(NULL, "\n")) {
+        printf("[%s]\n", line);
+        if (!isdigit(*line)) {
+            fill_missing_values(s);
+            s->dim++;
+        } else {
+            ssv_parse(3, range, line);
+            parse_seeds_values(s, range);
+        }
+    }
+    fill_missing_values(s);
 }
 
 void day5_solver(size_t size, char buff[size])
 {
-    char *line = strtok(buff, "\n");
-    int scount = count_seeds(line);
-    long seeds[8][255] = { 0 };
-    long range[3];
-    int dim = 0;
+    seeder_t s = {
+        .count = count_seeds(buff),
+        .dim = 0,
+        .vals = {{ 0 }}
+    };
 
-    ssv_parse(scount, seeds[0], strchr(line, ':') + 1);
-    line = strtok(NULL, "\n");
-    for (; line != NULL; line = strtok(NULL, "\n")) {
-        printf("[%s]\n", line);
-
-        if (*line == '\0')
-            break;
-        if (!isdigit(*line)) {
-            fill_missing_values(seeds, scount, dim++);
-        } else {
-            ssv_parse(3, range, line);
-            parse_seeds_values(seeds, scount, dim, range);
-        }
-    }
-    fill_missing_values(seeds, scount, dim);
-    printf("%ld\n", get_min_value(seeds, scount, dim));
-    for (int i = 0; i < scount; i++) {
-        printf(
-            "[%ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld]\n",
-            seeds[0][i], seeds[1][i], seeds[2][i], seeds[3][i],
-            seeds[4][i], seeds[5][i], seeds[6][i], seeds[7][i]
-        );
-    }
+    populate_seeeder(&s, buff);
+    printf("Part 1: %ld\n", get_min_value(&s));
 }
