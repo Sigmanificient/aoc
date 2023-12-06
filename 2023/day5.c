@@ -1,6 +1,8 @@
 #include <ctype.h>
+#include <limits.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "aoc.h"
@@ -48,7 +50,7 @@ void parse_seeds_values(seeder_t *s, const long range[3])
     for (int j = 0; j < s->count; j++) {
         if (
             s->vals[s->dim - 1][j] < range[1]
-            || s->vals[s->dim - 1][j] > (range[1] + range[2])
+            || s->vals[s->dim - 1][j] >= (range[1] + range[2])
         )
             continue;
         s->vals[s->dim][j] = range[0] + (s->vals[s->dim - 1][j] - range[1]);
@@ -67,15 +69,13 @@ long get_min_value(seeder_t *s)
 }
 
 static
-void populate_seeeder(seeder_t *s, char *buff)
+void populate_seeeder(seeder_t *s, size_t size, char *buff)
 {
     char *line = strtok(buff, "\n");
     long range[3];
 
-    ssv_parse(s->count, s->vals[0], strchr(line, ':') + 1);
     line = strtok(NULL, "\n");
     for (; line != NULL; line = strtok(NULL, "\n")) {
-        printf("[%s]\n", line);
         if (!isdigit(*line)) {
             fill_missing_values(s);
             s->dim++;
@@ -85,6 +85,36 @@ void populate_seeeder(seeder_t *s, char *buff)
         }
     }
     fill_missing_values(s);
+    for (size_t i = 0; i < size; i++)
+        if (buff[i] == '\0')
+            buff[i] = '\n';
+}
+
+static
+long get_min_range_value(seeder_t *s, size_t size, char buff[size])
+{
+    long min = (long)1e10 - 1;
+
+    for (int k = 0; k < s->count; k += 2) {
+        long start = s->vals[0][k];
+        long max = s->vals[0][k + 1];
+        long tmp;
+
+        // Brute force
+        s->count = 1;
+        for (long i = 0; i <= max; i++) {
+            for (int j = 1; j < 8; j++)
+                s->vals[j][0] = 0;
+            s->dim = 0;
+            s->vals[0][0] = start + i;
+            populate_seeeder(s, size, buff);
+            tmp = get_min_value(s);
+            if (tmp < min)
+                min = tmp;
+            printf("%09ld -> tmp: %-12ld | min: %-12ld\n", i, tmp, min);
+        }
+    }
+    return min;
 }
 
 void day5_solver(size_t size, char buff[size])
@@ -95,6 +125,8 @@ void day5_solver(size_t size, char buff[size])
         .vals = {{ 0 }}
     };
 
-    populate_seeeder(&s, buff);
+    ssv_parse(s.count, s.vals[0], strchr(buff, ':') + 1);
+    populate_seeeder(&s, size, buff);
     printf("Part 1: %ld\n", get_min_value(&s));
+    printf("Part 2: %ld\n", get_min_range_value(&s, size, buff));
 }
