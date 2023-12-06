@@ -19,7 +19,7 @@ CFLAGS += -MMD -MP
 CFLAGS += -fanalyzer
 CFLAGS += -pipe
 
-CFLAGS += -O2 -march=native -mtune=native
+CFLAGS += -O2 -g3 -march=native -mtune=native
 
 CFLAGS += -Wall
 CFLAGS += -Waggregate-return
@@ -44,7 +44,7 @@ CFLAGS += -Wwrite-strings
 CFLAGS += -iquote .
 
 LDFLAGS += -fwhole-program -flto
-LDFLAGS += -fsanitize=address,leak,undefined -g
+# LDFLAGS += -fsanitize=address,leak,undefined
 
 VPATH += .
 SRC += main.c
@@ -55,6 +55,7 @@ SRC += day2.c
 SRC += day3.c
 SRC += day4.c
 SRC += day5.c
+SRC += day6.c
 
 vpath %.c $(VPATH)
 
