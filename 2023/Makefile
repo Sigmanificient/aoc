@@ -44,7 +44,7 @@ CFLAGS += -Wwrite-strings
 CFLAGS += -iquote .
 
 LDFLAGS += -fwhole-program -flto
-# LDFLAGS += -fsanitize=address,leak,undefined
+LDFLAGS += -fsanitize=address,leak,undefined
 
 VPATH += .
 SRC += main.c
@@ -57,6 +57,7 @@ SRC += day4.c
 SRC += day5.c
 SRC += day6.c
 SRC += day7.c
+SRC += day8.c
 
 vpath %.c $(VPATH)
 
