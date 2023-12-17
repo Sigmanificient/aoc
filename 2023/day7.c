@@ -12,37 +12,53 @@ typedef struct {
     int bid;
 } play_t;
 
-const char CARDS[] = "23456789TJQKA";
+const char CARDS[] = "J23456789TJQKA";
 const int CARDS_TYPES = sizeof(CARDS) - 1;
+int USE_JOKER = 0;
 
+const int RANK_UP[6][6] = {
+    [0] = { 0, 1, 3, 5, 6, 6 },
+    [1] = { 1, 3, 5, 6, 0, 0 },
+    [2] = { 2, 4, 0, 0, 0, 0 },
+    [3] = { 3, 5, 6, 0, 0, 0 },
+    [4] = { 4, 6, 0, 0, 0, 0 },
+    [5] = { 5, 6, 0, 0, 0, 0 },
+};
 
 static
-int ql_stridx(const char *str, char c)
+int get_card_value(char card)
 {
-    for (const char *p = str; *p != '\0'; p++)
-        if (*p == c)
-            return (int)(p - str);
+    const char *cards = CARDS + !USE_JOKER;
+
+    for (int i = 0; i < CARDS_TYPES; i++)
+        if (cards[i] == card)
+            return i;
     return -1;
 }
 
 static
 int get_card_strength(const play_t *play)
 {
-    int cards[13] = { 0 };
+    int cards[14] = { 0 };
     int count_pairs = 0;
     int count_three = 0;
+    int tmp = 0;
 
     for (int i = 0; i < CARD_COUNT; i++)
-        cards[ql_stridx(CARDS, play->cards[i])]++;
-    for (int i = 0; i < CARDS_TYPES; i++) {
-        if (cards[i] > 3)
-            return (cards[i] + 1) * 100; // 500 or 600 for 4+ cards
-        if (cards[i] == 3)
-            count_three++;
-        if (cards[i] == 2)
-            count_pairs++;
+        cards[get_card_value(play->cards[i])]++;
+    for (int i = USE_JOKER; i < CARDS_TYPES; i++) {
+        count_three += (cards[i] == 3);
+        count_pairs += (cards[i] == 2);
+        if (cards[i] > 3) {
+            tmp = (cards[i] + 1); // 500 or 600 for 4+ cards
+            break;
+        }
     }
-    return ((count_pairs * 1) + (count_three * 3)) * 100;
+    if (!tmp)
+        tmp = count_pairs + (count_three * 3);
+    if (USE_JOKER)
+        tmp = RANK_UP[tmp][cards[0]];
+    return tmp * 100;
 }
 
 static
@@ -57,8 +73,8 @@ int compare_cards(const void *vleft, const void *vright)
     for (int i = 0; i < 5; i++)
         if (pl_left->cards[i] != pl_right->cards[i])
             return (
-                ql_stridx(CARDS, pl_left->cards[i])
-                - ql_stridx(CARDS, pl_right->cards[i])
+                get_card_value(pl_left->cards[i])
+                - get_card_value(pl_right->cards[i])
             );
     return 0;
 }
@@ -82,10 +98,14 @@ void day7_solver(size_t size, char buff[size])
 {
     play_t plays[1024];
     size_t play_count = parse_cards(plays, buff);
-    int total = 0;
+    size_t total;
 
-    qsort(plays, play_count, sizeof *plays, &compare_cards);
-    for (size_t i = 0; i < play_count; i++)
-        total += (i + 1) * (size_t)plays[i].bid;
-    printf("Part 1: %d\n", total);
+    for (int part = 0; part < 2; part++) {
+        USE_JOKER = part;
+        total = 0;
+        qsort(plays, play_count, sizeof *plays, &compare_cards);
+        for (size_t i = 0; i < play_count; i++)
+            total += (i + 1) * (size_t)plays[i].bid;
+        printf("Part %d: %zu\n", part + 1, total);
+    }
 }
