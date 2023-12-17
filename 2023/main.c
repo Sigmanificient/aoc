@@ -12,6 +12,7 @@ const solver_fnc_t SOLVERS[] = {
     &day6_solver,
     &day7_solver,
     &day8_solver,
+    &day9_solver,
 };
 
 const int SOLVER_COUNT = sizeof(SOLVERS) / sizeof(*SOLVERS);

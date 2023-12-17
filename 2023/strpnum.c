@@ -35,3 +35,16 @@ long strplnum(char **strp)
     *strp = s;
     return n;
 }
+
+int strnum(char **strp, int *val)
+{
+    int n = (**strp == '-');
+    int absv;
+
+    *strp += n;
+    absv = strpnum(strp);
+    if (absv == -1)
+        return -1;
+    *val = n ? -absv : absv;
+    return 0;
+}
