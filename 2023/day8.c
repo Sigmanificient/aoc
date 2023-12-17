@@ -18,7 +18,7 @@ path_t *find_path(path_t *paths, const char *name, size_t count_path)
     for (size_t i = 0; i < count_path; i++)
         if (!strncmp(paths[i].code, name, 3))
             return &paths[i];
-    return NULL;
+    __builtin_unreachable();
 }
 
 static
@@ -36,7 +36,7 @@ size_t parse_file(path_t *paths)
     return count_path;
 }
 
-static
+static __attribute__((pure))
 size_t get_map_length(path_t *paths, size_t count_path, const char *ins)
 {
     size_t len = strlen(ins);
@@ -55,7 +55,7 @@ size_t get_map_length(path_t *paths, size_t count_path, const char *ins)
     return i;
 }
 
-static
+static __attribute__((pure))
 unsigned int ngcd(const unsigned int *n, size_t count)
 {
     unsigned int res = *n;
@@ -73,7 +73,7 @@ unsigned int ngcd(const unsigned int *n, size_t count)
     return res;
 }
 
-static
+static __attribute__((pure))
 unsigned long compute_map_length(unsigned int *vals, size_t count)
 {
     unsigned int gcd = ngcd(vals, count);
@@ -84,11 +84,11 @@ unsigned long compute_map_length(unsigned int *vals, size_t count)
     return res * gcd;
 }
 
-static
+static __attribute__((pure))
 size_t get_ghost_map_legnth(path_t *paths, size_t count_path, const char *ins)
 {
     path_t *ghosts[1024];
-    unsigned int count[1024];
+    unsigned int count[1024] = { 0 };
     size_t ghosts_count = 0;
     size_t len = strlen(ins);
     char *path;

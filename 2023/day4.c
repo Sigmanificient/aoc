@@ -78,7 +78,7 @@ void compute_game_score(game_size_t *gs, char *line)
     printf("Part 2: %d\n", sum);
 }
 
-static
+static __attribute__((pure))
 int count_lines(char *buff)
 {
     int i = 0;

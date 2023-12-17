@@ -24,7 +24,7 @@ int parse_line(long *arr, size_t dt, char *line)
     return count;
 }
 
-static
+static __attribute__((pure))
 int compute_win_scenarios(race_t *race)
 {
     int count = 0;
