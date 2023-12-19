@@ -59,6 +59,7 @@ SRC += day6.c
 SRC += day7.c
 SRC += day8.c
 SRC += day9.c
+SRC += day10.c
 
 vpath %.c $(VPATH)
 
