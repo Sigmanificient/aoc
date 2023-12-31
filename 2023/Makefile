@@ -50,16 +50,17 @@ VPATH += .
 SRC += main.c
 SRC += file_reader.c
 SRC += strpnum.c
-SRC += day1.c
-SRC += day2.c
-SRC += day3.c
-SRC += day4.c
-SRC += day5.c
-SRC += day6.c
-SRC += day7.c
-SRC += day8.c
-SRC += day9.c
-SRC += day10.c
+
+SRC += day_01.c
+SRC += day_02.c
+SRC += day_03.c
+SRC += day_04.c
+SRC += day_05.c
+SRC += day_06.c
+SRC += day_07.c
+SRC += day_08.c
+SRC += day_09.c
+SRC += day_10.c
 
 vpath %.c $(VPATH)
 
