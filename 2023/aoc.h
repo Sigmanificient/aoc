@@ -15,6 +15,7 @@ void day8_solver(size_t size, char buff[size]);
 void day9_solver(size_t size, char buff[size]);
 void day10_solver(size_t size, char buff[size]);
 void day11_solver(size_t size, char buff[size]);
+void day12_solver(size_t size, char buff[size]);
 
 int strnum(char **strp, int *val);
 int strpnum(char **strp);
