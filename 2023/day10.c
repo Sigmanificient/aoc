@@ -133,6 +133,45 @@ size_t maze_flood(
     return hit + 1;
 }
 
+static
+void maze_char_swap(array_t *maze, const char swp[static 2])
+{
+    for (size_t y = 0; y < maze->height; y++)
+        for (size_t x = 0; x < maze->width; x++)
+            if (maze->vals[y][x] == swp[0])
+                maze->vals[y][x] = swp[1];
+}
+
+static
+void maze_flood_outer_layer(array_t *maze)
+{
+    const char cell[] = ".~";
+
+    maze_char_swap(maze, "X.");
+    for (size_t x = 0; x < maze->width; x++) {
+        maze_flood(maze, 0, x, cell);
+        maze_flood(maze, maze->height - 1, x, cell);
+    }
+
+    for (size_t y = 0; y < maze->height; y++) {
+        maze_flood(maze, y, 0, cell);
+        maze_flood(maze, y, maze->width - 1, cell);
+    }
+}
+
+static __attribute_pure__
+size_t maze_count_inner_blocks(array_t *maze)
+{
+    size_t mid = TILESIZE / 2;
+    size_t count = 0;
+
+    for (size_t y = 0; y < maze->height; y += TILESIZE)
+        for (size_t x = 0; x < maze->width; x += TILESIZE)
+            if (maze->vals[y + mid][x + mid] == '.')
+                count++;
+    return count;
+}
+
 void day10_solver(size_t size, char buff[size])
 {
     array_t *maze = maze_create(size, buff);
@@ -141,7 +180,11 @@ void day10_solver(size_t size, char buff[size])
     if (maze == NULL)
         return;
 
-    length = maze_flood(maze, maze->animal.y, maze->animal.x, "X!");
+    length = maze_flood(maze, maze->animal.y, maze->animal.x, "X@");
     printf("Part 1: %zu\n", length / (TILESIZE << 1));
+
+    maze_flood_outer_layer(maze);
+    printf("Part 2: %zu\n", maze_count_inner_blocks(maze));
+
     free(maze);
 }
