@@ -30,7 +30,7 @@ void create_arrangement(size_t count, char *ptrs[static count], size_t i)
     }
 }
 
-static
+static __attribute_pure__
 bool match_requirements(
     const char *line,
     size_t digit_count, const long digits[static digit_count])

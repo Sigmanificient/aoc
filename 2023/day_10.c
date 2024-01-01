@@ -55,6 +55,8 @@ void maze_paint_from_string(array_t *maze, const char *buff)
     size_t x = 0;
     size_t y = 0;
 
+    maze->animal.x = 0;
+    maze->animal.y = 0;
     for (size_t i = 0; buff[i] != '\0'; i++) {
         if (buff[i] == '\n') {
             y += TILESIZE;
