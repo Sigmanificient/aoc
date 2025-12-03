@@ -10,20 +10,23 @@ int main(void)
     int count_zero = 0;
     int lapcount = 0;
 
+    int sum = dial;
+
     while (getline(&buff, &sz, stdin) > 0) {
         int direction = (*buff == 'R') - (*buff == 'L');
         int rotation = strtol(buff+1, NULL, 10);
-        if (!direction || rotation < 0)
+        if (!direction || rotation <= 0)
             continue;
 
-        int prev = dial;
-        dial = (100 + (dial + (rotation * direction))) % 100;
+        for (int i = 0; i < rotation; i++) {
+            dial = (dial + 100 + (direction)) % 100;
+            lapcount += (dial == 0);
+        }
+
         if (dial == 0)
             count_zero++;
-        if (dial + (rotation * direction) != prev)
-            lapcount++;
     }
 
     printf("Part 1: %d\n", count_zero);
-    printf("Part 1: %d\n", lapcount);
+    printf("Part 2: %d\n", lapcount);
 }
