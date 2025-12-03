@@ -8,3 +8,5 @@ input.data
 __pycache__
 *.py[cod]
 venv
+
+a.out
