@@ -10,8 +10,6 @@ int main(void)
     int count_zero = 0;
     int lapcount = 0;
 
-    int sum = dial;
-
     while (getline(&buff, &sz, stdin) > 0) {
         int direction = (*buff == 'R') - (*buff == 'L');
         int rotation = strtol(buff+1, NULL, 10);
